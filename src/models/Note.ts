@@ -8,7 +8,7 @@ const noteSchema=new Schema(
     contentJSON:{type:Object,required:true},
     userID:{type:mongoose.Schema.ObjectId,ref:'User'},
     subject:{type:String,required:true},
-    color:{type:String,enum:["green","blue","pink","green","yellow","purple"]}
+    color:{type:String,enum:["green","blue","orange","green","yellow","purple"]}
 },
 {
     timestamps:true

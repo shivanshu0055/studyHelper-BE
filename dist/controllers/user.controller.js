@@ -120,7 +120,6 @@ const deleteNote = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
     const noteID = noteBody.noteID;
     yield note.deleteOne();
-    console.log(noteID);
     const ns = pinecone_1.index.namespace('__default__');
     yield ns.deleteMany({
         noteID: { $eq: noteID },

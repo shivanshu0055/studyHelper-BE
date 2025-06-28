@@ -85,7 +85,7 @@ export const getNote=async (req:Request,res:Response)=>{
 
 
 export const editNote=async (req:Request,res:Response) => {
-  
+
     const noteBody=req.body
     const userID=req.userID
 
@@ -129,8 +129,8 @@ export const deleteNote=async (req:Request,res:Response) => {
 
     const noteID=noteBody.noteID
     await note.deleteOne()
-    console.log(noteID);
     
+
     const ns = index.namespace('__default__')
 
     await ns.deleteMany({
