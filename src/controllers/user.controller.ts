@@ -14,7 +14,10 @@ export const createNote=async (req:Request,res:Response)=>{
     const noteBody=req.body
     const userID=req.userID
 
+    // console.log(req.body);
+    
     const zodVerifiedNote=noteSchema.safeParse(noteBody)
+
 
     if(!zodVerifiedNote.success){
         return res.status(400).json({
@@ -70,9 +73,27 @@ export const getNotes=async (req:Request,res:Response)=>{
   return res.json({
     "notes":notes
   })
-  }
+}
 
+export const getNotesByMonth=async (req:Request,res:Response)=>{
+  const {month}=req.query
+  const userID=req.body
+  const startDate=new Date(`${month}-01T00:00:00.000Z`)
+  const endDate=new Date(new Date(startDate).setMonth(startDate.getMonth()+1))
 
+  const notes=await noteModel.find({
+    createdAt:{$gte:startDate,$lt:endDate},
+    userID:userID
+  }).sort({createdAt:-1})
+
+  // const notes=await noteModel.find({
+  //   userID:userID
+  // })
+  
+  return res.json({
+    "notes":notes
+  })
+}
   
 export const getNote=async (req:Request,res:Response)=>{
   
@@ -165,7 +186,7 @@ export const getResponseWithContext= async (req:Request,res:Response) =>{
 
         const response = await ai.models.generateContent({
         model: "gemini-2.0-flash-lite",
-        contents: query+" Answer according to the following context "+context,
+        contents:"Please give extensive answer to this prompt : " +query+context,
         });
 
         // if(!response.candidates) return 
@@ -180,16 +201,11 @@ export const getResponseWithContext= async (req:Request,res:Response) =>{
 export const getPlainResponse=async (req:Request,res:Response) =>{
 
         const query=req.body.query
-        // console.log(query);
-        
-        // const context=await findSimilarVectors(query)
-        // const context=req.body.context
+   
         const response = await ai.models.generateContent({
         model: "gemini-2.0-flash-lite",
         contents: query
         });
-
-        // if(!response.candidates) return 
 
         res.json({
           //@ts-ignore
@@ -204,7 +220,8 @@ export const getContextFromSimilarEmbeddings=async (req:Request,res:Response)=>{
     if(typeof query!="string") return null 
 
     const context=await findSimilarVectors(query)
-    console.log(context);
+    // console.log(context);
+    // console.log();
     
     res.json({
         "Context":context

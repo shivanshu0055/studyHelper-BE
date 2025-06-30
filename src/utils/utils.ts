@@ -15,7 +15,7 @@ export const createChunks = async (text:string) =>{
   const splitter = new RecursiveCharacterTextSplitter({
   chunkSize: 800,
   chunkOverlap: 100,
-  separators: ["\n\n", "\n", ".", "!", "?"," "],
+  // separators: ["\n\n", "\n", ".", "!", "?"," "],
   });
 
   const documents = await splitter.createDocuments([text]);
@@ -122,7 +122,7 @@ export const findSimilarVectors=async (query:string) => {
         }
       });
     
-    console.log(response.embeddings);
+    // console.log(response.embeddings);
     if(!response.embeddings) return
 
     
@@ -134,18 +134,23 @@ export const findSimilarVectors=async (query:string) => {
 
     const queryResponse = await ns.query({
       vector: vector,
-      topK: 3,
+      topK: 2,
       includeMetadata: true,
     });
 
-    console.log(queryResponse.matches);
+
+    // console.log(queryResponse.matches);
     
     // console.log(queryResponse.matches[0].metadata.title);
+
     let context=""
     queryResponse.matches.forEach((chunk)=>{
       // @ts-ignore
       context+=`${chunk.metadata.title} `
     })
+
+    // console.log(context);
+    
     //@ts-ignore
     return context
 }

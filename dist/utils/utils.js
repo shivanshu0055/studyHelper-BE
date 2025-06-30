@@ -27,7 +27,7 @@ const createChunks = (text) => __awaiter(void 0, void 0, void 0, function* () {
     const splitter = new text_splitter_1.RecursiveCharacterTextSplitter({
         chunkSize: 800,
         chunkOverlap: 100,
-        separators: ["\n\n", "\n", ".", "!", "?", " "],
+        // separators: ["\n\n", "\n", ".", "!", "?"," "],
     });
     const documents = yield splitter.createDocuments([text]);
     const chunks = documents.map((doc) => doc.pageContent);
@@ -116,7 +116,7 @@ const findSimilarVectors = (query) => __awaiter(void 0, void 0, void 0, function
             taskType: "RETRIEVAL_DOCUMENT"
         }
     });
-    console.log(response.embeddings);
+    // console.log(response.embeddings);
     if (!response.embeddings)
         return;
     const queryEmbedding = response.embeddings;
@@ -124,16 +124,17 @@ const findSimilarVectors = (query) => __awaiter(void 0, void 0, void 0, function
     const vector = (_b = (_a = queryEmbedding[0]) === null || _a === void 0 ? void 0 : _a.values) !== null && _b !== void 0 ? _b : [];
     const queryResponse = yield pinecone_1.ns.query({
         vector: vector,
-        topK: 3,
+        topK: 2,
         includeMetadata: true,
     });
-    console.log(queryResponse.matches);
+    // console.log(queryResponse.matches);
     // console.log(queryResponse.matches[0].metadata.title);
     let context = "";
     queryResponse.matches.forEach((chunk) => {
         // @ts-ignore
         context += `${chunk.metadata.title} `;
     });
+    // console.log(context);
     //@ts-ignore
     return context;
 });

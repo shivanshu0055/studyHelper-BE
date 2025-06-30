@@ -23,6 +23,7 @@ exports.ai = new genai_1.GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const createNote = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const noteBody = req.body;
     const userID = req.userID;
+    console.log(req.body);
     const zodVerifiedNote = types_1.noteSchema.safeParse(noteBody);
     if (!zodVerifiedNote.success) {
         return res.status(400).json({
@@ -147,7 +148,7 @@ const getResponseWithContext = (req, res) => __awaiter(void 0, void 0, void 0, f
     const context = req.body.context;
     const response = yield exports.ai.models.generateContent({
         model: "gemini-2.0-flash-lite",
-        contents: query + " Answer according to the following context " + context,
+        contents: "Please give extensive answer to this prompt : " + query + context,
     });
     // if(!response.candidates) return 
     res.json({
@@ -160,14 +161,10 @@ exports.getResponseWithContext = getResponseWithContext;
 const getPlainResponse = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const query = req.body.query;
-    // console.log(query);
-    // const context=await findSimilarVectors(query)
-    // const context=req.body.context
     const response = yield exports.ai.models.generateContent({
         model: "gemini-2.0-flash-lite",
         contents: query
     });
-    // if(!response.candidates) return 
     res.json({
         //@ts-ignore
         "response": (_a = response.candidates[0].content) === null || _a === void 0 ? void 0 : _a.parts[0].text
@@ -180,7 +177,8 @@ const getContextFromSimilarEmbeddings = (req, res) => __awaiter(void 0, void 0, 
     if (typeof query != "string")
         return null;
     const context = yield (0, utils_1.findSimilarVectors)(query);
-    console.log(context);
+    // console.log(context);
+    // console.log();
     res.json({
         "Context": context
     });
