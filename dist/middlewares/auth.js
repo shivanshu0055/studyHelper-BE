@@ -8,6 +8,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const userMiddleware = (req, res, next) => {
     try {
         const header = req.headers['authorization'];
+        //  console.log(header);
         const token = header.split(' ')[1];
         const verifiedPayload = jsonwebtoken_1.default.verify(token, process.env.JWT_TOKEN);
         if (!verifiedPayload) {

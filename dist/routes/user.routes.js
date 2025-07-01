@@ -10,6 +10,7 @@ exports.userRouter = (0, express_1.Router)();
 exports.userRouter.post("/createNote", auth_1.userMiddleware, (0, asyncHandlers_1.asyncHandler)(user_controller_1.createNote));
 exports.userRouter.get("/getNotes", auth_1.userMiddleware, (0, asyncHandlers_1.asyncHandler)(user_controller_1.getNotes));
 exports.userRouter.post("/getNote", auth_1.userMiddleware, (0, asyncHandlers_1.asyncHandler)(user_controller_1.getNote));
+exports.userRouter.get('/getNotesByMonth', auth_1.userMiddleware, (0, asyncHandlers_1.asyncHandler)(user_controller_1.getNotesByMonth));
 exports.userRouter.post("/editNote", auth_1.userMiddleware, (0, asyncHandlers_1.asyncHandler)(user_controller_1.editNote));
 exports.userRouter.post("/deleteNote", auth_1.userMiddleware, (0, asyncHandlers_1.asyncHandler)(user_controller_1.deleteNote));
 exports.userRouter.post("/readPDF", auth_1.userMiddleware, multer_1.upload.single("pdf"), (0, asyncHandlers_1.asyncHandler)(user_controller_1.readPDF));

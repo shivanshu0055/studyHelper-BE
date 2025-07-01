@@ -55,10 +55,11 @@ export const createNote=async (req:Request,res:Response)=>{
           title:embed.title
       }
     }))
-    // await index.upsert(vectorData)
 
-    const ns=index.namespace('__default__')
-    await ns.upsert(vectorData)
+    await index.upsert(vectorData)
+
+    // const ns=index.namespace('__default__')
+    // await ns.upsert(vectorData)
     
     return res.json({
         "note":newNote
@@ -76,23 +77,31 @@ export const getNotes=async (req:Request,res:Response)=>{
 }
 
 export const getNotesByMonth=async (req:Request,res:Response)=>{
-  const {month}=req.query
-  const userID=req.body
-  const startDate=new Date(`${month}-01T00:00:00.000Z`)
-  const endDate=new Date(new Date(startDate).setMonth(startDate.getMonth()+1))
+  try {
+    const { month } = req.query;
+    if (!month) return res.status(400).json({ error: 'Month is required' });
+    // console.log(month);
+    
+    const startDate = new Date(`${month}-01T00:00:00.000Z`);
+    const endDate = new Date(new Date(startDate).setMonth(startDate.getMonth() + 1));
+    // console.log(typeof startDate);
+    // console.log(endDate);
+    // console.log(req.userID);
+    
+    const notes = await noteModel.find({
+      createdAt: { $gte: startDate, $lt: endDate },
+      userID: req.userID  // or however you track the user
+    })
 
-  const notes=await noteModel.find({
-    createdAt:{$gte:startDate,$lt:endDate},
-    userID:userID
-  }).sort({createdAt:-1})
-
-  // const notes=await noteModel.find({
-  //   userID:userID
-  // })
-  
-  return res.json({
-    "notes":notes
-  })
+    res.status(200).json({
+      "notes":notes
+    });
+    // console.log(notes);
+    
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
 }
   
 export const getNote=async (req:Request,res:Response)=>{
@@ -103,7 +112,6 @@ export const getNote=async (req:Request,res:Response)=>{
     "note":note
   })
   }
-
 
 export const editNote=async (req:Request,res:Response) => {
 
@@ -152,7 +160,7 @@ export const deleteNote=async (req:Request,res:Response) => {
     await note.deleteOne()
     
 
-    const ns = index.namespace('__default__')
+    // const ns = index.namespace('__default__')
 
     await ns.deleteMany({
       noteID: { $eq: noteID },

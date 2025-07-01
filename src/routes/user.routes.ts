@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { asyncHandler } from '../asyncHandlers';
-import { createNote, deleteNote, editNote, getContextFromSimilarEmbeddings, getNote, getNotes, getPlainResponse, getResponseWithContext, readPDF, searchNotes } from '../controllers/user.controller';
+import { createNote, deleteNote, editNote, getContextFromSimilarEmbeddings, getNote, getNotes, getNotesByMonth, getPlainResponse, getResponseWithContext, readPDF, searchNotes } from '../controllers/user.controller';
 import { userMiddleware } from '../middlewares/auth';
 import { upload } from '../middlewares/multer';
 
@@ -9,6 +9,7 @@ export const userRouter=Router()
 userRouter.post("/createNote",userMiddleware,asyncHandler(createNote));
 userRouter.get("/getNotes",userMiddleware,asyncHandler(getNotes));
 userRouter.post("/getNote",userMiddleware,asyncHandler(getNote));
+userRouter.get('/getNotesByMonth',userMiddleware,asyncHandler(getNotesByMonth))
 userRouter.post("/editNote",userMiddleware,asyncHandler(editNote));
 userRouter.post("/deleteNote",userMiddleware,asyncHandler(deleteNote));
 userRouter.post("/readPDF",userMiddleware,upload.single("pdf"),asyncHandler(readPDF));

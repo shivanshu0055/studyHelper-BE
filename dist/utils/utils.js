@@ -44,7 +44,7 @@ function getEmbeddingsWithRetry(batch_1, noteID_1) {
         while (attempt < maxRetries) {
             try {
                 const response = yield user_controller_1.ai.models.embedContent({
-                    model: 'embedding-001',
+                    model: 'text-embedding-004',
                     contents: batch,
                     config: {
                         taskType: "RETRIEVAL_DOCUMENT"
@@ -111,22 +111,25 @@ const findSimilarVectors = (query) => __awaiter(void 0, void 0, void 0, function
     var _a, _b;
     const response = yield user_controller_1.ai.models.embedContent({
         model: 'text-embedding-004',
-        contents: query,
+        contents: [query],
         config: {
-            taskType: "RETRIEVAL_DOCUMENT"
+            taskType: "RETRIEVAL_QUERY"
         }
     });
+    // console.log(response.embeddings);
+    console.log(response.embeddings);
     // console.log(response.embeddings);
     if (!response.embeddings)
         return;
     const queryEmbedding = response.embeddings;
     // Extract the numeric values from the first embedding
     const vector = (_b = (_a = queryEmbedding[0]) === null || _a === void 0 ? void 0 : _a.values) !== null && _b !== void 0 ? _b : [];
-    const queryResponse = yield pinecone_1.ns.query({
+    const queryResponse = yield pinecone_1.index.query({
         vector: vector,
-        topK: 2,
+        topK: 7,
         includeMetadata: true,
     });
+    console.log(queryResponse);
     // console.log(queryResponse.matches);
     // console.log(queryResponse.matches[0].metadata.title);
     let context = "";
@@ -135,6 +138,7 @@ const findSimilarVectors = (query) => __awaiter(void 0, void 0, void 0, function
         context += `${chunk.metadata.title} `;
     });
     // console.log(context);
+    // console.log("************************** ***************************** ****************************** ***************************");
     //@ts-ignore
     return context;
 });

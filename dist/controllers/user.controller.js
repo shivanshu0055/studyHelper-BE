@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchNotes = exports.getContextFromSimilarEmbeddings = exports.getPlainResponse = exports.getResponseWithContext = exports.readPDF = exports.deleteNote = exports.editNote = exports.getNote = exports.getNotes = exports.createNote = exports.ai = void 0;
+exports.searchNotes = exports.getContextFromSimilarEmbeddings = exports.getPlainResponse = exports.getResponseWithContext = exports.readPDF = exports.deleteNote = exports.editNote = exports.getNote = exports.getNotesByMonth = exports.getNotes = exports.createNote = exports.ai = void 0;
 const types_1 = require("../types");
 const Note_1 = __importDefault(require("../models/Note"));
 const utils_1 = require("../utils/utils");
@@ -23,7 +23,7 @@ exports.ai = new genai_1.GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const createNote = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const noteBody = req.body;
     const userID = req.userID;
-    console.log(req.body);
+    // console.log(req.body);
     const zodVerifiedNote = types_1.noteSchema.safeParse(noteBody);
     if (!zodVerifiedNote.success) {
         return res.status(400).json({
@@ -55,9 +55,9 @@ const createNote = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             title: embed.title
         }
     }));
-    // await index.upsert(vectorData)
-    const ns = pinecone_1.index.namespace('__default__');
-    yield ns.upsert(vectorData);
+    yield pinecone_1.index.upsert(vectorData);
+    // const ns=index.namespace('__default__')
+    // await ns.upsert(vectorData)
     return res.json({
         "note": newNote
     });
@@ -73,6 +73,32 @@ const getNotes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     });
 });
 exports.getNotes = getNotes;
+const getNotesByMonth = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { month } = req.query;
+        if (!month)
+            return res.status(400).json({ error: 'Month is required' });
+        // console.log(month);
+        const startDate = new Date(`${month}-01T00:00:00.000Z`);
+        const endDate = new Date(new Date(startDate).setMonth(startDate.getMonth() + 1));
+        // console.log(typeof startDate);
+        // console.log(endDate);
+        // console.log(req.userID);
+        const notes = yield Note_1.default.find({
+            createdAt: { $gte: startDate, $lt: endDate },
+            userID: req.userID // or however you track the user
+        });
+        res.status(200).json({
+            "notes": notes
+        });
+        // console.log(notes);
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+exports.getNotesByMonth = getNotesByMonth;
 const getNote = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const noteID = req.body.noteID;
     const note = yield Note_1.default.findById(noteID);
@@ -121,8 +147,8 @@ const deleteNote = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
     const noteID = noteBody.noteID;
     yield note.deleteOne();
-    const ns = pinecone_1.index.namespace('__default__');
-    yield ns.deleteMany({
+    // const ns = index.namespace('__default__')
+    yield pinecone_1.ns.deleteMany({
         noteID: { $eq: noteID },
     });
     res.json({

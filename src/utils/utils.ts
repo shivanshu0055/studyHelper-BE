@@ -25,7 +25,6 @@ export const createChunks = async (text:string) =>{
 
 }
 
-
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -35,7 +34,7 @@ async function getEmbeddingsWithRetry(batch: string[],noteID:string, maxRetries 
   while (attempt < maxRetries) {
     try {
       const response = await ai.models.embedContent({
-        model: 'embedding-001',
+        model: 'text-embedding-004',
         contents: batch,
         config: {
           taskType: "RETRIEVAL_DOCUMENT"
@@ -116,12 +115,14 @@ export const findSimilarVectors=async (query:string) => {
   
   const response=await ai.models.embedContent({
         model: 'text-embedding-004',
-        contents: query,
+        contents: [query],
         config: {
-          taskType: "RETRIEVAL_DOCUMENT"
+          taskType: "RETRIEVAL_QUERY"
         }
       });
-    
+    // console.log(response.embeddings);
+      console.log(response.embeddings);
+      
     // console.log(response.embeddings);
     if(!response.embeddings) return
 
@@ -132,12 +133,14 @@ export const findSimilarVectors=async (query:string) => {
     const vector: number[] = queryEmbedding[0]?.values ?? [];
     
 
-    const queryResponse = await ns.query({
+    const queryResponse = await index.query({
       vector: vector,
-      topK: 2,
+      topK: 7,
       includeMetadata: true,
     });
 
+    console.log(queryResponse);
+    
 
     // console.log(queryResponse.matches);
     
@@ -150,6 +153,7 @@ export const findSimilarVectors=async (query:string) => {
     })
 
     // console.log(context);
+    // console.log("************************** ***************************** ****************************** ***************************");
     
     //@ts-ignore
     return context
