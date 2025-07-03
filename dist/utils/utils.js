@@ -117,7 +117,7 @@ const findSimilarVectors = (query) => __awaiter(void 0, void 0, void 0, function
         }
     });
     // console.log(response.embeddings);
-    console.log(response.embeddings);
+    // console.log(response.embeddings);
     // console.log(response.embeddings);
     if (!response.embeddings)
         return;
@@ -126,18 +126,21 @@ const findSimilarVectors = (query) => __awaiter(void 0, void 0, void 0, function
     const vector = (_b = (_a = queryEmbedding[0]) === null || _a === void 0 ? void 0 : _a.values) !== null && _b !== void 0 ? _b : [];
     const queryResponse = yield pinecone_1.index.query({
         vector: vector,
-        topK: 7,
+        topK: 1,
         includeMetadata: true,
     });
-    console.log(queryResponse);
+    // console.log(queryResponse);
     // console.log(queryResponse.matches);
     // console.log(queryResponse.matches[0].metadata.title);
     let context = "";
     queryResponse.matches.forEach((chunk) => {
+        // if(chunk)
         // @ts-ignore
-        context += `${chunk.metadata.title} `;
+        if (chunk.score > 0.6)
+            // @ts-ignore
+            context += `${chunk.metadata.title} `;
     });
-    // console.log(context);
+    console.log(context);
     // console.log("************************** ***************************** ****************************** ***************************");
     //@ts-ignore
     return context;
