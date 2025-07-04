@@ -10,7 +10,8 @@ export const noteSchema=z.object({
     content:z.string(),
     subject:z.string(),
     color:z.string(),
-    contentJSON:z.any()
+    contentJSON:z.any(),
+    fav:z.boolean()
 })
 
 export type userType=z.infer<typeof userSchema>

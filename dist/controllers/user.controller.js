@@ -36,7 +36,8 @@ const createNote = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         userID: userID,
         color: noteBody.color,
         contentJSON: noteBody.contentJSON,
-        subject: noteBody.subject
+        subject: noteBody.subject,
+        fav: noteBody.fav
     });
     const noteID = newNote._id.toString();
     const embeddings = yield (0, utils_1.createEmbeddings)(noteBody.content, noteID);
@@ -109,11 +110,13 @@ const getNote = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.getNote = getNote;
 const editNote = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const noteBody = req.body;
+    // console.log(noteBody);
     const userID = req.userID;
     const note = yield Note_1.default.findOne({
         _id: noteBody.noteID,
         userID: userID
     });
+    // console.log(note)
     if (!note) {
         return res.json({
             "message": "The note doesn't exists"
@@ -127,7 +130,24 @@ const editNote = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         note.color = noteBody.color;
     if (noteBody.contentJSON)
         note.contentJSON = noteBody.contentJSON;
+    if (noteBody.fav !== undefined)
+        note.fav = noteBody.fav;
     yield note.save();
+    yield pinecone_1.ns.deleteMany({
+        noteID: { $eq: note._id },
+    });
+    const noteID = note._id.toString();
+    const embeddings = yield (0, utils_1.createEmbeddings)(note.content, noteID);
+    //@ts-ignore
+    const vectorData = embeddings === null || embeddings === void 0 ? void 0 : embeddings.map((embed) => ({
+        id: (0, uuid_1.v4)(),
+        values: embed.embeddings,
+        metadata: {
+            noteID: embed.noteID,
+            title: embed.title
+        }
+    }));
+    yield pinecone_1.index.upsert(vectorData);
     return res.json({
         "note": note
     });

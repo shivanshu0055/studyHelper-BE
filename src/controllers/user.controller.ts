@@ -31,7 +31,8 @@ export const createNote=async (req:Request,res:Response)=>{
         userID:userID,
         color:noteBody.color,
         contentJSON:noteBody.contentJSON,
-        subject:noteBody.subject
+        subject:noteBody.subject,
+        fav:noteBody.fav
     })
 
     const noteID=newNote._id.toString()
@@ -113,15 +114,22 @@ export const getNote=async (req:Request,res:Response)=>{
   })
   }
 
+
+
 export const editNote=async (req:Request,res:Response) => {
 
     const noteBody=req.body
+    // console.log(noteBody);
+    
     const userID=req.userID
 
     const note=await noteModel.findOne({
         _id:noteBody.noteID,
         userID:userID
     })
+
+    // console.log(note)
+    
 
     if(!note){
         return res.json({
@@ -133,8 +141,29 @@ export const editNote=async (req:Request,res:Response) => {
     if(noteBody.content) note.content=noteBody.content
     if(noteBody.color) note.color=noteBody.color
     if(noteBody.contentJSON) note.contentJSON=noteBody.contentJSON
+    if(noteBody.fav!==undefined) note.fav=noteBody.fav
 
     await note.save()
+    
+    await ns.deleteMany({
+      noteID: { $eq: note._id },
+    })
+
+    const noteID=note._id.toString()
+
+    const embeddings=await createEmbeddings(note.content,noteID)
+
+    //@ts-ignore
+    const vectorData:PineconeRecord[]=embeddings?.map((embed)=>({
+      id:uuidv4(),
+      values:embed.embeddings,
+      metadata:{
+          noteID:embed.noteID,
+          title:embed.title
+      }
+    }))
+
+    await index.upsert(vectorData)
 
     return res.json({
         "note":note

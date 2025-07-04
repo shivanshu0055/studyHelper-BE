@@ -11,5 +11,6 @@ exports.noteSchema = zod_1.z.object({
     content: zod_1.z.string(),
     subject: zod_1.z.string(),
     color: zod_1.z.string(),
-    contentJSON: zod_1.z.any()
+    contentJSON: zod_1.z.any(),
+    fav: zod_1.z.boolean()
 });

@@ -140,7 +140,7 @@ const findSimilarVectors = (query) => __awaiter(void 0, void 0, void 0, function
             // @ts-ignore
             context += `${chunk.metadata.title} `;
     });
-    console.log(context);
+    // console.log(context);
     // console.log("************************** ***************************** ****************************** ***************************");
     //@ts-ignore
     return context;

@@ -1,5 +1,6 @@
 import mongoose, { model } from 'mongoose'
 import { Schema } from 'mongoose'
+import { boolean } from 'zod'
 
 const noteSchema=new Schema(
     {
@@ -8,7 +9,8 @@ const noteSchema=new Schema(
     contentJSON:{type:Object,required:true},
     userID:{type:mongoose.Schema.ObjectId,ref:'User'},
     subject:{type:String,required:true},
-    color:{type:String,enum:["green","blue","orange","green","yellow","purple"]}
+    color:{type:String,enum:["green","blue","orange","green","yellow","purple"]},
+    fav:{type:Boolean,default:false}
 },
 {
     timestamps:true
